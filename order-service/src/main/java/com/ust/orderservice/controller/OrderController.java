@@ -6,6 +6,7 @@ import com.ust.orderservice.domain.OrderStatus;
 import com.ust.orderservice.feign_client.InventoryClientService;
 import com.ust.orderservice.payload.OrderRequest;
 import com.ust.orderservice.service.OrderService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -14,12 +15,11 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/orders")
+@RequiredArgsConstructor
 public class OrderController {
 
-    @Autowired
-    InventoryClientService inventoryClientService;
-    @Autowired
-    OrderService orderService;
+    private final InventoryClientService inventoryClientService;
+    private final OrderService orderService;
 
     // POST /orders create order
     @PostMapping

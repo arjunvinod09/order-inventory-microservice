@@ -8,7 +8,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 @FeignClient(name = "inventory",url = "http://localhost:8100/products")
 public interface InventoryClientService {
-
     @GetMapping
     InventoryServiceDto isProductAvailable(@RequestParam String skuCode, @RequestParam int quantity);
     @GetMapping("/{skuCode}")
