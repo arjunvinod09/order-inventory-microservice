@@ -1,4 +1,4 @@
-package com.ust.discoveryservice;
+package com.ust.doscoveryservice;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
