@@ -9,7 +9,6 @@ import com.ust.orderservice.service.OrderService;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -49,13 +48,10 @@ public class OrderController {
     @PutMapping("/{id}/confirm")
     public ResponseEntity<Order> confirmOrder(@PathVariable long id){
         var fetchedOrder = orderService.getOrderById(id);
-        var totalPrice = orderService.validOrder(fetchedOrder);
-        log.info("Value of fetched total price = " + totalPrice);
+        var valid = orderService.validOrder(fetchedOrder);
 
-        if(totalPrice != 0.0){
-            log.debug("Total price got returned 0");
+        if(valid){
             fetchedOrder.setStatus(OrderStatus.CONFIRMED);
-            fetchedOrder.setTotalPrice(totalPrice);
             return ResponseEntity.ok(orderService.createOrder(fetchedOrder));
         }
         else{

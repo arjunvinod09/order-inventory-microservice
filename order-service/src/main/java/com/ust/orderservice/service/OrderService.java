@@ -8,9 +8,7 @@ import com.ust.orderservice.repository.OrderRepository;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestParam;
 
 @Service
 @RequiredArgsConstructor
@@ -22,6 +20,9 @@ public class OrderService {
     private final OrderRepository orderRepository;
 
     public Order createOrder(Order order) {
+        for(var orderItem : order.getOrderItems()){
+            order.setTotalPrice(order.getTotalPrice() + (orderItem.getPrice()*orderItem.getQuantity()));
+        }
         order = orderRepository.save(order);
         return order;
     }
@@ -30,26 +31,17 @@ public class OrderService {
         return orderRepository.findById(orderId).orElseThrow();
     }
 
-    public double validOrder(Order order){
+    public boolean validOrder(Order order){
         double totalPrice = 0.0;
         boolean flag = true;
-        log.debug("Order received: {}", order);
-        for(OrderItem orderItem : order.getOrderItems()){
-            log.debug("Getting each order item {} from the order", orderItem);
-            InventoryServiceDto inventoryServiceDto = inventoryClientService.isProductAvailable(orderItem.getSkuCode(),orderItem.getQuantity());
-            if(inventoryServiceDto.available()){
-                log.debug("Getting price for item {} {} and adding it to total price {}", orderItem.getSkuCode(), orderItem.getPrice(), totalPrice);
-                totalPrice = totalPrice + (inventoryServiceDto.price() * orderItem.getQuantity());
-            }
-            else{
+        for(OrderItem orderItem : order.getOrderItems()) {
+            InventoryServiceDto inventoryServiceDto = inventoryClientService.isProductAvailable(orderItem.getSkuCode(), orderItem.getQuantity());
+            if (inventoryServiceDto.available()) {
+                flag = true;
+            } else {
                 flag = false;
             }
         }
-        if(flag){
-            return totalPrice;
-        }
-        else{
-            return 0.0;
-        }
+        return flag;
     }
 }
