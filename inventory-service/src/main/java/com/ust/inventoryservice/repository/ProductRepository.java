@@ -2,6 +2,7 @@ package com.ust.inventoryservice.repository;
 
 import com.ust.inventoryservice.domain.Product;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 
 import java.util.Optional;
 
@@ -13,6 +14,7 @@ public interface ProductRepository extends JpaRepository<Product, String> {
     // Check if the requested quantity of the product is available
     boolean existsBySkuCodeAndQuantityGreaterThanEqual(String skuCode, int quantity);
 
+    @Query("SELECT p.quantity from Product p WHERE p.skuCode = :skuCode")
     // Return quantity of the product by its SKU code
     int findQuantityBySkuCode(String skuCode);
 
