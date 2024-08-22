@@ -2,6 +2,7 @@ package com.ust.orderservice.service;
 
 import com.ust.orderservice.domain.Order;
 import com.ust.orderservice.domain.OrderItem;
+import com.ust.orderservice.domain.OrderStatus;
 import com.ust.orderservice.feign_client.InventoryClientService;
 import com.ust.orderservice.payload.InventoryServiceDto;
 import com.ust.orderservice.repository.OrderRepository;
@@ -20,10 +21,12 @@ public class OrderService {
     private final OrderRepository orderRepository;
 
     public Order createOrder(Order order) {
-        for(var orderItem : order.getOrderItems()){
-            order.setTotalPrice(order.getTotalPrice() + (orderItem.getPrice()*orderItem.getQuantity()));
+        if(order.getStatus() != OrderStatus.CONFIRMED){
+            for(var orderItem : order.getOrderItems()){
+                order.setTotalPrice(order.getTotalPrice() + (orderItem.getPrice()*orderItem.getQuantity()));
+            }
+            order = orderRepository.save(order);
         }
-        order = orderRepository.save(order);
         return order;
     }
 
