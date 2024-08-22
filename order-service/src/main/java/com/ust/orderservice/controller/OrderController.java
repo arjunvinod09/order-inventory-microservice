@@ -7,6 +7,8 @@ import com.ust.orderservice.feign_client.InventoryClientService;
 import com.ust.orderservice.payload.OrderRequest;
 import com.ust.orderservice.service.OrderService;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,6 +20,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class OrderController {
 
+    private static final Logger log = LoggerFactory.getLogger(OrderController.class);
     private final InventoryClientService inventoryClientService;
     private final OrderService orderService;
 
@@ -46,10 +49,14 @@ public class OrderController {
     @PutMapping("/{id}/confirm")
     public ResponseEntity<Order> confirmOrder(@PathVariable long id){
         var fetchedOrder = orderService.getOrderById(id);
-        var valid = orderService.validOrder(fetchedOrder);
-        if(valid){
+        var totalPrice = orderService.validOrder(fetchedOrder);
+        log.info("Value of fetched total price = " + totalPrice);
+
+        if(totalPrice != 0.0){
+            log.debug("Total price got returned 0");
             fetchedOrder.setStatus(OrderStatus.CONFIRMED);
-            return ResponseEntity.ok(orderService.createOrder(orderService.getOrderById(id)));
+            fetchedOrder.setTotalPrice(totalPrice);
+            return ResponseEntity.ok(orderService.createOrder(fetchedOrder));
         }
         else{
             return ResponseEntity.ok(fetchedOrder);
